@@ -1,0 +1,35 @@
+services:
+  # db:
+  #   image: postgres
+  #   restart: always
+  #   ports:
+  #     - 5432:5432
+  #   environment:
+  #     POSTGRES_USER: root
+  #     POSTGRES_PASSWORD: mysecretpassword
+  #     POSTGRES_DB: local
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql
+  #   networks:
+  #     - internal
+
+  portfolio:
+    build: .
+    env_file: .env
+    ports:
+      - 3000:3000
+    networks:
+      - proxy
+      - internal
+    environment:
+      # DATABASE_URL: postgres://root:mysecretpassword@db:5432/local
+    restart: unless-stopped
+
+networks:
+  proxy:
+    external: true
+  internal:
+    driver: bridge
+
+volumes:
+  pgdata:
