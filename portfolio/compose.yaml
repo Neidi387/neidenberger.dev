@@ -1,4 +1,13 @@
 services:
+  portfolio:
+    build: .
+    env_file: .env
+    ports:
+      - 3000:3000
+    networks:
+      - proxy
+      - internal
+    restart: unless-stopped
   # db:
   #   image: postgres
   #   restart: always
@@ -12,18 +21,6 @@ services:
   #     - pgdata:/var/lib/postgresql
   #   networks:
   #     - internal
-
-  portfolio:
-    build: .
-    env_file: .env
-    ports:
-      - 3000:3000
-    networks:
-      - proxy
-      - internal
-    environment:
-      # DATABASE_URL: postgres://root:mysecretpassword@db:5432/local
-    restart: unless-stopped
 
 networks:
   proxy:
