@@ -26,6 +26,18 @@ services:
       - proxy
     restart: unless-stopped
 
+  steve:
+    image: ghcr.io/neidi387/neidi387-portfolio-sveltekit:latest
+    networks:
+      - proxy
+    restart: unless-stopped
+
+  neidischachtel:
+    image: ghcr.io/neidi387/neidischachtel:latest
+    networks:
+      - proxy
+    restart: unless-stopped
+
   webhook:
     build: ./webhook
     ports:
