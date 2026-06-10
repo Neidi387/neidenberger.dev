@@ -1,0 +1,54 @@
+name: neidenberger-dev
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - proxy
+    restart: unless-stopped
+
+  portfolio:
+    image: ghcr.io/neidi387/neidi387-portfolio-sveltekit:latest
+    networks:
+      - proxy
+    restart: unless-stopped
+
+  art:
+    build: ./apache
+    image: art
+    volumes:
+      - ${APACHE_WEB_ROOT}:/usr/local/apache2/htdocs:ro
+    networks:
+      - proxy
+    restart: unless-stopped
+
+  webhook:
+    build: ./webhook
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./webhook/hooks.json:/etc/webhook/hooks.json:ro
+      - ./webhook/scripts:/scripts:ro
+      - ./docker-compose.prod.yml:/docker-compose.prod.yml:ro
+      - ${APACHE_WEB_ROOT}:${APACHE_WEB_ROOT}
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - /usr/lib/docker/cli-plugins:/usr/lib/docker/cli-plugins:ro
+    environment:
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - DOCKER_COMPOSE_FILE=/docker-compose.prod.yml
+      - APACHE_WEB_ROOT=${APACHE_WEB_ROOT}
+      - APACHE_REPO_URL=${APACHE_REPO_URL}
+    command: ["-hooks", "/etc/webhook/hooks.json", "-template", "-hotreload", "-verbose"]
+    networks:
+      - proxy
+    restart: unless-stopped
+
+networks:
+  proxy:
+    name: proxy
+    driver: bridge
