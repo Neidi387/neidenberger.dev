@@ -1,0 +1,52 @@
+name: neidenberger-dev
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - proxy
+    restart: unless-stopped
+
+  portfolio:
+    image: ghcr.io/neidi387/neidi387-portfolio-sveltekit:latest
+    networks:
+      - proxy
+    restart: unless-stopped
+    
+  # neidischachtel:
+  #   image: ghcr.io/neidi387/neidischachtel:latest
+  #   networks:
+  #     - proxy
+  #   restart: unless-stopped
+
+  # art:
+  #   image: php:8.2-apache
+  #   restart: always
+  #   volumes:
+  #     - ./art:/var/www/html
+
+  # steve:
+  #   image: ghcr.io/neidi387/steve:latest
+  #   networks:
+  #     - proxy
+  #   restart: unless-stopped
+
+  watchtower:
+    image: nickfedor/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json:ro
+    environment:
+      - DOCKER_CONFIG=/config.json
+    command: --interval 300 --cleanup
+    restart: unless-stopped
+
+
+networks:
+  proxy:
+    name: proxy
+    driver: bridge
